@@ -19,8 +19,7 @@ jobs:
 
       - name: Apply DTS patch (Overlay 107MB)
         run: |
-          # 覆盖官方 DTS 文件为你修改过的版本
-          cp ./dts-patch/mt7986a-ruijie-rg-x60-pro.dts target/linux/mediatek/dts/mt7986a-ruijie-rg-x60-pro.dts
+          cp dts-patch/mt7986a-ruijie-rg-x60-pro.dts target/linux/mediatek/dts/mt7986a-ruijie-rg-x60-pro.dts
 
       - name: Cache build
         uses: actions/cache@v3
