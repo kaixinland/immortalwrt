@@ -1,4 +1,4 @@
-name: Build ImmortalWrt RG-X60 Pro (Overlay 107MB)
+name: Build ImmortalWrt RG-X60 Pro (UBI 107MB)
 
 on:
   workflow_dispatch:   # 手动触发
@@ -14,19 +14,20 @@ jobs:
       - name: Checkout official ImmortalWrt source
         uses: actions/checkout@v3
         with:
-          repository: immortalwrt/immortalwrt   # 官方仓库
-          ref: v24.10.4                        # 指定版本号
+          repository: immortalwrt/immortalwrt
+          ref: v24.10.4
 
-      - name: Patch DTS (Overlay 107MB)
+      - name: Patch DTS (UBI 107MB)
         run: |
           sed -i 's/reg = <0x680000 0x3f00000>/reg = <0x680000 0x6480000>/' target/linux/mediatek/dts/mt7986a-ruijie-rg-x60-pro.dts
 
-      - name: Cache build
+      - name: Clean build dir (防止缓存冲突)
+        run: rm -rf build_dir tmp
+
+      - name: Cache downloads
         uses: actions/cache@v3
         with:
-          path: |
-            dl
-            build_dir
+          path: dl
           key: ${{ runner.os }}-immortalwrt-${{ github.sha }}
 
       - name: Install dependencies
@@ -35,7 +36,8 @@ jobs:
           sudo apt-get install -y build-essential gcc g++ make unzip git \
             libncurses5-dev libncursesw5-dev zlib1g-dev gawk flex gettext \
             wget python3 python3-distutils rsync file libssl-dev \
-            libelf-dev ecj fastjar java-propose-classpath
+            libelf-dev ecj fastjar java-propose-classpath \
+            swig python3-dev python3-setuptools
 
       - name: Update feeds
         run: ./scripts/feeds update -a && ./scripts/feeds install -a
@@ -70,8 +72,8 @@ jobs:
           EOF
           make defconfig
 
-      - name: Build firmware
-        run: make -j$(nproc)
+      - name: Build firmware (verbose)
+        run: make -j1 V=s
 
       - name: List build output
         run: ls -R bin/targets/mediatek/mt7986/
@@ -87,7 +89,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v24.10.4
-          name: ImmortalWrt-24.10.4 RG-X60 Pro 固件 (Overlay 107MB)
+          name: ImmortalWrt-24.10.4 RG-X60 Pro 固件 (UBI 107MB)
           files: |
             bin/targets/mediatek/mt7986/*/*.bin
             bin/targets/mediatek/mt7986/*/*.manifest
