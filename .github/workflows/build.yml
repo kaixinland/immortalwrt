@@ -11,11 +11,16 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: Checkout source
+      - name: Checkout official ImmortalWrt source
         uses: actions/checkout@v3
         with:
-          repository: kaixinland/immortalwrt   # 你的 fork 仓库
-          ref: v24.10.4                       # 指定版本号
+          repository: immortalwrt/immortalwrt   # 官方仓库
+          ref: v24.10.4                        # 指定版本号
+
+      - name: Apply DTS patch (Overlay 107MB)
+        run: |
+          # 覆盖官方 DTS 文件为你修改过的版本
+          cp ./dts-patch/mt7986a-ruijie-rg-x60-pro.dts target/linux/mediatek/dts/mt7986a-ruijie-rg-x60-pro.dts
 
       - name: Cache build
         uses: actions/cache@v3
