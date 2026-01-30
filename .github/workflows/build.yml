@@ -46,15 +46,40 @@ jobs:
           CONFIG_TARGET_mediatek=y
           CONFIG_TARGET_mediatek_mt7986=y
           CONFIG_TARGET_mediatek_mt7986_DEVICE_rg_x60pro=y
+
+          # 基础功能
+          CONFIG_PACKAGE_opkg=y
+          CONFIG_PACKAGE_busybox=y
+          CONFIG_PACKAGE_dnsmasq=y
+          CONFIG_PACKAGE_firewall=y
+          CONFIG_PACKAGE_netifd=y
+          CONFIG_PACKAGE_dropbear=y
+
+          # LuCI Web 管理界面
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-base=y
+          CONFIG_PACKAGE_luci-mod-admin-full=y
+          CONFIG_PACKAGE_luci-theme-bootstrap=y
+
+          # 无线驱动
+          CONFIG_PACKAGE_kmod-mt7986-firmware=y
+
+          # 交换芯片驱动
+          CONFIG_PACKAGE_kmod-dsa=y
+          CONFIG_PACKAGE_kmod-mt7530=y
           EOF
           make defconfig
 
       - name: Build firmware
         run: make -j$(nproc)
 
+      - name: List build output
+        run: ls -R bin/targets/mediatek/mt7986/
+
       - name: Rename firmware files (加 commit SHA 避免冲突)
         run: |
-          for f in bin/targets/mediatek/mt7986/rg_x60pro/*.bin; do
+          shopt -s nullglob
+          for f in bin/targets/mediatek/mt7986/*/*.bin; do
             mv "$f" "${f%.bin}-${{ github.sha }}.bin"
           done
 
@@ -64,8 +89,8 @@ jobs:
           tag_name: v24.10.4
           name: ImmortalWrt-24.10.4 RG-X60 Pro 固件 (Overlay 107MB)
           files: |
-            bin/targets/mediatek/mt7986/rg_x60pro/*.bin
-            bin/targets/mediatek/mt7986/rg_x60pro/*.manifest
-            bin/targets/mediatek/mt7986/rg_x60pro/*.sha256sum
+            bin/targets/mediatek/mt7986/*/*.bin
+            bin/targets/mediatek/mt7986/*/*.manifest
+            bin/targets/mediatek/mt7986/*/*.sha256sum
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
