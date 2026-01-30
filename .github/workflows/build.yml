@@ -17,9 +17,9 @@ jobs:
           repository: immortalwrt/immortalwrt   # 官方仓库
           ref: v24.10.4                        # 指定版本号
 
-      - name: Apply DTS patch (Overlay 107MB)
+      - name: Patch DTS (Overlay 107MB)
         run: |
-          cp dts-patch/mt7986a-ruijie-rg-x60-pro.dts target/linux/mediatek/dts/mt7986a-ruijie-rg-x60-pro.dts
+          sed -i 's/reg = <0x680000 0x3f00000>/reg = <0x680000 0x6480000>/' target/linux/mediatek/dts/mt7986a-ruijie-rg-x60-pro.dts
 
       - name: Cache build
         uses: actions/cache@v3
